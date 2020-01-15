@@ -40,20 +40,12 @@ Adafruit_MAX31855::Adafruit_MAX31855(int8_t _cs) {
   initialized = false;
 }
 
-<<<<<<< HEAD
 void Adafruit_MAX31855::begin(SPIClass *SPI_pointer) {
-=======
-void Adafruit_MAX31855::begin(SPIClass *SPI_Pointer) {
->>>>>>> c026395412c302e18e934822e375d4983cd82796
   //define pin modes
   pinMode(cs, OUTPUT);
   digitalWrite(cs, HIGH);
 
-<<<<<<< HEAD
   MAXSPI = SPI_pointer;
-=======
-  MAXSPI = SPI_Pointer;
->>>>>>> c026395412c302e18e934822e375d4983cd82796
 
   if (sclk == -1) {
     // hardware SPI

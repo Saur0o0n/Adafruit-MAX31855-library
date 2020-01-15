@@ -30,11 +30,7 @@ class Adafruit_MAX31855 {
   Adafruit_MAX31855(int8_t _sclk, int8_t _cs, int8_t _miso);
   Adafruit_MAX31855(int8_t _cs);
 
-<<<<<<< HEAD
   void begin(SPIClass *SPI_pointer = &SPI);
-=======
-  void begin(SPIClass *SPI_Pointer = &SPI);
->>>>>>> c026395412c302e18e934822e375d4983cd82796
   double readInternal(void);
   double readCelsius(void);
   double readFarenheit(void);
@@ -47,9 +43,9 @@ class Adafruit_MAX31855 {
 
  private:
   boolean initialized;
-  SPIClass * MAXSPI = NULL;
 
   int8_t sclk, miso, cs;
+  SPIClass * MAXSPI = NULL;
   uint32_t spiread32(void);
 };
 
