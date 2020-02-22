@@ -63,6 +63,13 @@ double Adafruit_MAX31855::readInternal(void) {
 
   v = spiread32();
 
+  //Serial.print("0x"); Serial.println(v, HEX);		// DEBUG
+
+  if (v & 0x7 || v == 0x0) {
+    // uh oh, a serious problem!
+    return NAN;
+  }
+
   // ignore bottom 4 bits - they're just thermocouple data
   v >>= 4;
 
@@ -80,33 +87,7 @@ double Adafruit_MAX31855::readInternal(void) {
 }
 
 double Adafruit_MAX31855::readCelsius(void) {
-
-  int32_t v;
-
-  v = spiread32();
-
-  //Serial.print("0x"); Serial.println(v, HEX);
-
-  if (v & 0x7) {
-    // uh oh, a serious problem!
-    return NAN;
-  }
-
-  if (v & 0x80000000) {
-    // Negative value, drop the lower 18 bits and explicitly extend sign bits.
-    v = 0xFFFFC000 | ((v >> 18) & 0x00003FFF);
-  }
-  else {
-    // Positive value, just drop the lower 18 bits.
-    v >>= 18;
-  }
-  //Serial.println(v, HEX);
-
-  double centigrade = v;
-
-  // LSB = 0.25 degrees C
-  centigrade *= 0.25;
-  return centigrade;
+  return decodeCelsius(spiread32());
 }
 
 uint8_t Adafruit_MAX31855::readError() {
@@ -126,12 +107,16 @@ double Adafruit_MAX31855::readFarenheit(void) {
 uint32_t Adafruit_MAX31855::readRaw(void) {
   // spiread32() made Public
   // returns the unprocessed 32 bits of the MAX31855's internal memory
-  return spiread32();
+  int32_t v = spiread32();
+
+  if (v & 0x7 || v == 0x0) {
+    // we can't return NAN for integer - return 0
+    return 0;
+  }
+  return v;
 }
 
 double Adafruit_MAX31855::decodeCelsius(uint32_t rawData){
-  // Same as readCelsius() but you pass it the value from readRaw()
-
   int32_t v = rawData;
 
   //v = spiread32();
@@ -165,6 +150,11 @@ double Adafruit_MAX31855::decodeInternal(uint32_t rawData) {
   uint32_t v = rawData;
 
   //v = spiread32();
+
+  if (v & 0x7) {
+    // uh oh, a serious problem!
+    return NAN;
+  }
 
   // ignore bottom 4 bits - they're just thermocouple data
   v >>= 4;
@@ -208,8 +198,8 @@ double Adafruit_MAX31855::linearizeCelcius(double internalTemp, double rawTemp) 
 
   // Check to make sure thermocouple is working correctly.
   if (isnan(rawTemp)) {
-    Serial.println(F("Something wrong with thermocouple!"));
-	return NAN;
+    //Serial.println(F("Something wrong with thermocouple!"));
+    return NAN;
   }
   else {
     // Steps 1 & 2. Subtract cold junction temperature from the raw thermocouple temperature.
